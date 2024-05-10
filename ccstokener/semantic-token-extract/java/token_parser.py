@@ -1660,7 +1660,23 @@ class TokenParser(object):
         self.log_node('[tree method reference]')
 
         field = self.parse_expression_2(obj.expression)
-        self.add_global_field(field)
+        
+        if field is not None:
+            
+            # e.g., util::addImport, Jimple.v() -> field: {'member': 'util'}, {'qualifier': 'Jimple'}
+            name_list = field.get('member', None) or field.get('qualifier', None)
+            
+            # debug
+            if len(field) != 1 or not name_list or len(name_list) != 1:
+                print(f'field: {field}')
+            
+            if name_list:
+                self.add_global_field(name_list[0])
+        else:
+            # debug
+            if not isinstance(obj.expression, tree.This):
+                attr_dict = {key: getattr(obj.expression, key) for key in obj.expression.attrs}
+                print(f'[None Field] expression type: {type(obj.expression)}\n{attr_dict}')
 
 
         method = obj.method
