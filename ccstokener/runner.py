@@ -57,6 +57,6 @@ if __name__ == '__main__':
 
     os.system('find ./report -type f -name "*.log" | xargs cat >> ./results/report.log')
 
-    os.system('rm -rf tokens report')
+
 
     print('clone pairs are stored in ./results/clonepairs.txt')
