@@ -38,6 +38,11 @@ if __name__ == '__main__':
         exit(0)
 
     inputDir = os.path.realpath(inputDir)
+    
+    # reset output dir
+    os.system('rm -rf results; mkdir results')
+    os.system('rm -rf report; mkdir report')
+    os.system('rm -rf tokens; mkdir tokens')
 
     # extract semantic tokens
     print('extract semantic tokens...')
@@ -55,12 +60,9 @@ if __name__ == '__main__':
 
     # collect results
     print('collect detection results...')
-    os.system('rm -rf results; mkdir results')
-    os.system('rm -rf report; mkdir report')
+    
     os.system('find ./report -type f -name "*.pair" | xargs cat >> ./results/clonepairs.txt')
 
     os.system('find ./report -type f -name "*.log" | xargs cat >> ./results/report.log')
-
-    # os.system('rm -rf tokens report')
 
     print('clone pairs are stored in ./results/clonepairs.txt')
