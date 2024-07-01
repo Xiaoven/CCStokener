@@ -117,6 +117,10 @@ class TokenParser(object):
         self.window_size = 3
         self.debug = 1
         self.method_depth = 0
+        self.min_size = 6
+        
+    def set_min_size(self, min_method_size):
+        self.min_size = min_method_size
 
     def clear(self):
         self.token_map = {}
@@ -141,7 +145,7 @@ class TokenParser(object):
         self.union_expre_relation_list = [] # 关系表
     
     def dump(self):
-        if((self.method_end-self.method_start+1)<6):
+        if((self.method_end-self.method_start+1)<self.min_size):
             return ""
 
         dump_str = '<block filePath:{}, startline:{}, endline:{}, validTokenNum:{}, totalTokenNum: {}>\n'   \
@@ -1036,8 +1040,9 @@ class TokenParser(object):
         # print('opt file')
         # print(self.dump())
         if self.method_depth == 0:
-            with open(self.opt_file_path, 'a+') as fileOut:
-                fileOut.write(self.dump())
+            # # filter out constructors
+            # with open(self.opt_file_path, 'a+') as fileOut:
+            #     fileOut.write(self.dump())
             self.clear()
 
 # ------------------------------------------------------------------------------
@@ -1660,20 +1665,16 @@ class TokenParser(object):
         self.log_node('[tree method reference]')
 
         field = self.parse_expression_2(obj.expression)
-        
         if field is not None:
             
-            # e.g., util::addImport, Jimple.v() -> field: {'member': 'util'}, {'qualifier': 'Jimple'}
             name_list = field.get('member', None) or field.get('qualifier', None)
             
-            # debug
             if len(field) != 1 or not name_list or len(name_list) != 1:
                 print(f'field: {field}')
             
             if name_list:
                 self.add_global_field(name_list[0])
         else:
-            # debug
             if not isinstance(obj.expression, tree.This):
                 attr_dict = {key: getattr(obj.expression, key) for key in obj.expression.attrs}
                 print(f'[None Field] expression type: {type(obj.expression)}\n{attr_dict}')

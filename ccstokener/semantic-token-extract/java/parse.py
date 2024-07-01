@@ -15,6 +15,8 @@ sys.setrecursionlimit(50000)
 
 error_file_list = []
 
+MIN_SIZE = 6  # default min size of methods in lines
+
 def parse_func(content, file_path):
     tokens = javalang.tokenizer.tokenize(content)
     parser = javalang.parser.Parser(tokens)
@@ -84,6 +86,7 @@ def parse_file(file_path, opt_file_path):
     try:
         # print(tree)
         token_parser = TokenParser()
+        token_parser.set_min_size(MIN_SIZE)
         token_parser.parse(tree, file_path=file_path, opt_file_path=opt_file_path)
 
         # print_tree(tree)
@@ -212,20 +215,25 @@ def parse_bcb_subs(in_dir, opt_dir):
         parse_dir(sub_dir, cur_opt_dir)
 
 if __name__ == '__main__':
-    if(len(sys.argv) != 7):
-        print('python parse.py -i /path/to/dataset -o /path/to/output -m bcb/common')
+    if(len(sys.argv) not in (7, 9)):
+        print('python parse.py -i /path/to/dataset -o /path/to/output -m bcb/common [-s 6]')
         exit(0)
 
     mode = 'bcb'
     inputDir = ''
     outputDir = ''
-    for i in [1, 3, 5]:
+    
+    for i in [1, 3, 5, 7]:
+        if i >= len(sys.argv):
+            break
         if sys.argv[i] == '-m':
             mode = sys.argv[i+1]
         elif sys.argv[i] == '-i':
             inputDir = sys.argv[i+1]
         elif sys.argv[i] == '-o':
             outputDir = sys.argv[i+1]
+        elif sys.argv[i] == '-s':
+            MIN_SIZE = int(sys.argv[i+1])
 
     if inputDir=='' or not os.path.exists(inputDir):
         print('input dir not exist: {}'.format(inputDir))
